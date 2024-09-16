@@ -775,126 +775,126 @@ class MultipageChatbotApp(AbstractMultipageApp):
                         help="Edit chat title",
                     )
 
-def _handle_chat_configs_value_selection(self, current_chat_configs, model_fields):
-    updates_to_chat_configs = {}
-    for field_name, field in model_fields.items():
-        extra_info = field.json_schema_extra or {}
-
-        # Skip fields that are not allowed to be changed
-        if not extra_info.get("changeable", True):
-            continue
-
-        title = field_name.replace("_", " ").title()
-        choices = VoiceChatConfigs.get_allowed_values(field=field_name)
-        description = VoiceChatConfigs.get_description(field=field_name)
-        field_type, item_type = VoiceChatConfigs.get_type_and_item_type(field=field_name)
-
-        # Check if the field is frozen and disable corresponding UI element if so
-        chat_started = self.selected_page.state.get("chat_started", False)
-        disable_ui_element = extra_info.get("frozen", False) and (
-                chat_started
-                or any(msg["role"] == "user" for msg in self.selected_page.chat_history)
-        )
-
-        # Keep track of selected values so that selectbox doesn't reset
-        current_config_value = getattr(current_chat_configs, field_name)
-        element_key = f"{field_name}-pg-{self.selected_page.page_id}-ui-element"
-        widget_previous_value = self.get_widget_previous_value(
-            element_key, default=current_config_value
-        )
-
-        if choices:
-            index = None
-            try:
-                index = choices.index(widget_previous_value)
-            except ValueError:
-                logger.warning(
-                    "Index not found for value '{}'. The present values are {}",
-                    widget_previous_value,
-                    choices,
-                )
-
-            new_field_value = st.selectbox(
-                title,
-                key=element_key,
-                options=choices,
-                index=index,
-                help=description,
-                disabled=disable_ui_element,
-                on_change=self.save_widget_previous_values,
-                args=[element_key],
+    def _handle_chat_configs_value_selection(self, current_chat_configs, model_fields):
+        updates_to_chat_configs = {}
+        for field_name, field in model_fields.items():
+            extra_info = field.json_schema_extra or {}
+    
+            # Skip fields that are not allowed to be changed
+            if not extra_info.get("changeable", True):
+                continue
+    
+            title = field_name.replace("_", " ").title()
+            choices = VoiceChatConfigs.get_allowed_values(field=field_name)
+            description = VoiceChatConfigs.get_description(field=field_name)
+            field_type, item_type = VoiceChatConfigs.get_type_and_item_type(field=field_name)
+    
+            # Check if the field is frozen and disable corresponding UI element if so
+            chat_started = self.selected_page.state.get("chat_started", False)
+            disable_ui_element = extra_info.get("frozen", False) and (
+                    chat_started
+                    or any(msg["role"] == "user" for msg in self.selected_page.chat_history)
             )
-        elif field_type == str:
-            new_field_value = st.text_input(
-                title,
-                key=element_key,
-                value=widget_previous_value,
-                help=description,
-                disabled=disable_ui_element,
-                on_change=self.save_widget_previous_values,
-                args=[element_key],
+    
+            # Keep track of selected values so that selectbox doesn't reset
+            current_config_value = getattr(current_chat_configs, field_name)
+            element_key = f"{field_name}-pg-{self.selected_page.page_id}-ui-element"
+            widget_previous_value = self.get_widget_previous_value(
+                element_key, default=current_config_value
             )
-        elif field_type in [int, float]:
-            step = 1 if field_type == int else 0.01
-            bounds = [None, None]
-            for item in field.metadata:
-                with contextlib.suppress(AttributeError):
-                    bounds[0] = item.gt + step
-                with contextlib.suppress(AttributeError):
-                    bounds[0] = item.ge
-                with contextlib.suppress(AttributeError):
-                    bounds[1] = item.lt - step
-                with contextlib.suppress(AttributeError):
-                    bounds[1] = item.le
-
-            new_field_value = st.number_input(
-                title,
-                key=element_key,
-                value=widget_previous_value,
-                placeholder="OpenAI Default",
-                min_value=bounds[0],
-                max_value=bounds[1],
-                step=step,
-                help=description,
-                disabled=disable_ui_element,
-                on_change=self.save_widget_previous_values,
-                args=[element_key],
-            )
-        elif field_type in (list, tuple):
-            prev_value = widget_previous_value
-            if not isinstance(prev_value, str):
-                prev_value = '\n'.join(str(item) for item in prev_value)
-            new_input = st.text_area(
-                title,
-                value=prev_value.strip(),
-                key=element_key,
-                help=description,
-                disabled=disable_ui_element,
-                on_change=self.save_widget_previous_values,
-                args=[element_key],
-            )
-            items = new_input.strip().split('\n')
-            if item_type is not None:
+    
+            if choices:
+                index = None
                 try:
-                    converted_items = [item_type(item.strip()) for item in items]
-                except ValueError as e:
-                    st.error(f"Invalid input for {title}: {e}")
-                    continue  # Skip this field
-            else:
-                converted_items = [item.strip() for item in items]
-            if field_type == tuple:
-                new_field_value = tuple(converted_items)
-            elif field_type == list:
-                new_field_value = converted_items
+                    index = choices.index(widget_previous_value)
+                except ValueError:
+                    logger.warning(
+                        "Index not found for value '{}'. The present values are {}",
+                        widget_previous_value,
+                        choices,
+                    )
+    
+                new_field_value = st.selectbox(
+                    title,
+                    key=element_key,
+                    options=choices,
+                    index=index,
+                    help=description,
+                    disabled=disable_ui_element,
+                    on_change=self.save_widget_previous_values,
+                    args=[element_key],
+                )
+            elif field_type == str:
+                new_field_value = st.text_input(
+                    title,
+                    key=element_key,
+                    value=widget_previous_value,
+                    help=description,
+                    disabled=disable_ui_element,
+                    on_change=self.save_widget_previous_values,
+                    args=[element_key],
+                )
+            elif field_type in [int, float]:
+                step = 1 if field_type == int else 0.01
+                bounds = [None, None]
+                for item in field.metadata:
+                    with contextlib.suppress(AttributeError):
+                        bounds[0] = item.gt + step
+                    with contextlib.suppress(AttributeError):
+                        bounds[0] = item.ge
+                    with contextlib.suppress(AttributeError):
+                        bounds[1] = item.lt - step
+                    with contextlib.suppress(AttributeError):
+                        bounds[1] = item.le
+    
+                new_field_value = st.number_input(
+                    title,
+                    key=element_key,
+                    value=widget_previous_value,
+                    placeholder="OpenAI Default",
+                    min_value=bounds[0],
+                    max_value=bounds[1],
+                    step=step,
+                    help=description,
+                    disabled=disable_ui_element,
+                    on_change=self.save_widget_previous_values,
+                    args=[element_key],
+                )
+            elif field_type in (list, tuple):
+                prev_value = widget_previous_value
+                if not isinstance(prev_value, str):
+                    prev_value = '\n'.join(str(item) for item in prev_value)
+                new_input = st.text_area(
+                    title,
+                    value=prev_value.strip(),
+                    key=element_key,
+                    help=description,
+                    disabled=disable_ui_element,
+                    on_change=self.save_widget_previous_values,
+                    args=[element_key],
+                )
+                items = new_input.strip().split('\n')
+                if item_type is not None:
+                    try:
+                        converted_items = [item_type(item.strip()) for item in items]
+                    except ValueError as e:
+                        st.error(f"Invalid input for {title}: {e}")
+                        continue  # Skip this field
+                else:
+                    converted_items = [item.strip() for item in items]
+                if field_type == tuple:
+                    new_field_value = tuple(converted_items)
+                elif field_type == list:
+                    new_field_value = converted_items
+                else:
+                    continue
             else:
                 continue
-        else:
-            continue
-
-        if new_field_value != current_config_value:
-            updates_to_chat_configs[field_name] = new_field_value
-
-    return updates_to_chat_configs
+    
+            if new_field_value != current_config_value:
+                updates_to_chat_configs[field_name] = new_field_value
+    
+        return updates_to_chat_configs
 
 def _set_button_style():
     """CSS styling for the buttons in the app."""
