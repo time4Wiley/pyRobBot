@@ -11,23 +11,36 @@ import tiktoken
 
 # See <https://openai.com/pricing> for the latest prices.
 PRICE_PER_K_TOKENS_LLM = {
-    # Continuous model upgrades (models that point to the latest versions)
-    "gpt-3.5-turbo": {"input": 0.0005, "output": 0.0015},
-    "gpt-4-turbo-preview": {"input": 0.01, "output": 0.03},
+    # GPT-4o models
+    "gpt-4o": {"input": 0.005, "output": 0.015},
+    "gpt-4o-2024-08-06": {"input": 0.0025, "output": 0.01},
+    "gpt-4o-2024-05-13": {"input": 0.005, "output": 0.015},
+    "gpt-4o-mini": {"input": 0.00015, "output": 0.0006},
+    "gpt-4o-mini-2024-07-18": {"input": 0.00015, "output": 0.0006},
+    # OpenAI o1 models
+    "o1-preview": {"input": 0.015, "output": 0.06},
+    "o1-preview-2024-09-12": {"input": 0.015, "output": 0.06},
+    "o1-mini": {"input": 0.003, "output": 0.012},
+    "o1-mini-2024-09-12": {"input": 0.003, "output": 0.012},
+    # Other GPT-4 models
+    "chatgpt-4o-latest": {"input": 0.005, "output": 0.015},
+    "gpt-4-turbo": {"input": 0.01, "output": 0.03},
+    "gpt-4-turbo-2024-04-09": {"input": 0.01, "output": 0.03},
     "gpt-4": {"input": 0.03, "output": 0.06},
-    "gpt-3.5-turbo-16k": {"input": 0.001, "output": 0.002},  # -> gpt-3.5-turbo-16k-0613
     "gpt-4-32k": {"input": 0.06, "output": 0.12},
-    # Static model versions
-    # GPT 3
-    "gpt-3.5-turbo-0125": {"input": 0.0015, "output": 0.002},
-    "gpt-3.5-turbo-1106": {"input": 0.001, "output": 0.002},
-    "gpt-3.5-turbo-0613": {"input": 0.0015, "output": 0.002},  # Deprecated, 2024-06-13
-    "gpt-3.5-turbo-16k-0613": {"input": 0.001, "output": 0.002},  # Deprecated, 2024-06-13
-    # GPT 4
     "gpt-4-0125-preview": {"input": 0.01, "output": 0.03},
     "gpt-4-1106-preview": {"input": 0.01, "output": 0.03},
-    "gpt-4-0613": {"input": 0.03, "output": 0.06},
-    "gpt-4-32k-0613": {"input": 0.06, "output": 0.12},
+    "gpt-4-vision-preview": {"input": 0.01, "output": 0.03},
+    # GPT-3.5 models
+    "gpt-3.5-turbo-0125": {"input": 0.0005, "output": 0.0015},
+    "gpt-3.5-turbo-instruct": {"input": 0.0015, "output": 0.002},
+    "gpt-3.5-turbo-1106": {"input": 0.001, "output": 0.002},
+    "gpt-3.5-turbo-0613": {"input": 0.0015, "output": 0.002},
+    "gpt-3.5-turbo-16k-0613": {"input": 0.003, "output": 0.004},
+    "gpt-3.5-turbo-0301": {"input": 0.0015, "output": 0.002},
+    # Other models
+    "davinci-002": {"input": 0.002, "output": 0.002},
+    "babbage-002": {"input": 0.0004, "output": 0.0004},
 }
 PRICE_PER_K_TOKENS_EMBEDDINGS = {
     "text-embedding-3-small": {"input": 0.00002, "output": 0.0},
