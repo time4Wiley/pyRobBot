@@ -107,7 +107,7 @@ class OpenAiApiCallOptions(BaseConfigModel):
     _models_url = "https://platform.openai.com/docs/models"
 
     model: Literal[tuple(PRICE_PER_K_TOKENS_LLM)] = Field(
-        default=next(iter(PRICE_PER_K_TOKENS_LLM)),
+        default='gpt-4o-mini',
         description=f"OpenAI LLM model to use. See {_openai_url}-model and {_models_url}",
     )
     max_tokens: Optional[int] = Field(
