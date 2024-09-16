@@ -17,22 +17,38 @@ def voice_chat(args):
 
 def browser_chat(args):
     """Run the chat on the browser."""
+    import os
+    import sys
+
     ChatOptions.from_cli_args(args).export(fpath=GeneralDefinitions.PARSED_ARGS_FILE)
+
     try:
-        subprocess.run(
-            [  # noqa: S603, S607
-                "streamlit",
-                "run",
-                GeneralDefinitions.APP_PATH.as_posix(),
-                "--",
-                GeneralDefinitions.PARSED_ARGS_FILE.as_posix(),
-            ],
-            cwd=GeneralDefinitions.APP_DIR.as_posix(),
-            check=True,
-        )
+        # Get the path to the Python executable
+        python_path = os.path.abspath(sys.executable)
+
+        # Get the path to the Streamlit script
+        script_streamlit = os.path.join(os.path.dirname(python_path), 'streamlit')
+
+        # Get the path to your Streamlit app script
+        script_webserver = GeneralDefinitions.APP_PATH.as_posix()
+
+        # Set sys.argv to simulate running "streamlit run app.py -- parsed_args_file.pkl"
+        sys.argv = [
+            script_streamlit,
+            "run",
+            script_webserver,
+            "--",
+            GeneralDefinitions.PARSED_ARGS_FILE.as_posix(),
+        ]
+
+        # Change the current working directory to the app directory
+        os.chdir(GeneralDefinitions.APP_DIR.as_posix())
+
+        # Execute the Streamlit script
+        exec(open(script_streamlit).read())
+
     except (KeyboardInterrupt, EOFError):
         logger.info("Exiting.")
-
 
 def terminal_chat(args):
     """Run the chat on the terminal."""
