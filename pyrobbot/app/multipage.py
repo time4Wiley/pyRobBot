@@ -599,6 +599,8 @@ class MultipageChatbotApp(AbstractMultipageApp):
                 current_chat_configs = self.selected_page.chat_obj.configs.copy()
                 new_configs = current_chat_configs.model_dump()
                 new_configs.update(updates_to_chat_configs)
+                print("🌓Current chat configs")
+                print(new_configs)
                 new_configs = self.selected_page.chat_obj.configs.model_validate(
                     new_configs
                 )
