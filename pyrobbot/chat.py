@@ -391,7 +391,8 @@ class Chat(AlternativeConstructors):
 
             reply = "".join(self.respond_system_prompt(prompt=system_check_msg))
             reply = reply.strip(".' ").lower()
-            if ("no" in reply) or (self._translate("no") in reply):
+            should_do_web_search = ("no" in reply) or (self._translate("no") in reply)
+            if False:
                 instructions_for_web_search = (
                     "You are a professional web searcher. You will be presented with a "
                     "dialogue between `user` and `you`. Considering the dialogue and "
