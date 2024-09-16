@@ -18,6 +18,19 @@ class BaseConfigModel(BaseModel, extra="forbid"):
     """Base model for configuring options."""
 
     @classmethod
+    def get_type_and_item_type(cls, field: str):
+        """Return the field type and item type of `field`."""
+        type_hint = typing.get_type_hints(cls)[field]
+        origin = get_origin(type_hint)
+        args = get_args(type_hint)
+        if origin is not None:
+            item_type = args[0] if args else None
+            return origin, item_type
+        else:
+            # Not a generic type, so return the type itself
+            return type_hint, None
+
+    @classmethod
     def get_allowed_values(cls, field: str):
         """Return a tuple of allowed values for `field`."""
         annotation = cls._get_field_param(field=field, param="annotation")
@@ -56,8 +69,8 @@ class BaseConfigModel(BaseModel, extra="forbid"):
             for k, v in vars(cli_args).items()
             if k in cls.model_fields and v is not None
         }
-        if 'ai_instructions' in relevant_args and isinstance(relevant_args['ai_instructions'], str):
-            relevant_args['ai_instructions'] = tuple(relevant_args['ai_instructions'].split(','))
+        if "ai_instructions" in relevant_args and isinstance(relevant_args["ai_instructions"], str):
+            relevant_args["ai_instructions"] = tuple(relevant_args["ai_instructions"].split(","))
         return cls.model_validate(relevant_args)
 
     @classmethod
@@ -82,8 +95,8 @@ class BaseConfigModel(BaseModel, extra="forbid"):
         """Return an instance of the class given configs stored in a json file."""
         with open(fpath, "r") as configs_file:
             config_data = json.load(configs_file)
-            if 'ai_instructions' in config_data and isinstance(config_data['ai_instructions'], str):
-                config_data['ai_instructions'] = tuple(config_data['ai_instructions'].split(','))
+            if "ai_instructions" in config_data and isinstance(config_data["ai_instructions"], str):
+                config_data["ai_instructions"] = tuple(config_data["ai_instructions"].split(","))
             return cls.model_validate(config_data)
 
 
@@ -139,8 +152,8 @@ class ChatOptions(OpenAiApiCallOptions):
     context_model: Literal[tuple(PRICE_PER_K_TOKENS_EMBEDDINGS)] = Field(
         default=next(iter(PRICE_PER_K_TOKENS_EMBEDDINGS)),
         description=(
-            "Model to use for chat context (~memory). "
-            + "Once picked, it cannot be changed."
+                "Model to use for chat context (~memory). "
+                + "Once picked, it cannot be changed."
         ),
         json_schema_extra={"frozen": True},
     )
@@ -150,7 +163,7 @@ class ChatOptions(OpenAiApiCallOptions):
     private_mode: Optional[bool] = Field(
         default=False,
         description="Toggle private mode. If this flag is used, the chat will not "
-        + "be logged and the chat history will not be saved.",
+                    + "be logged and the chat history will not be saved.",
     )
     api_connection_max_n_attempts: int = Field(
         default=5,
@@ -160,18 +173,18 @@ class ChatOptions(OpenAiApiCallOptions):
     language: str = Field(
         default="en",
         description="Initial language adopted by the assistant. Use either the ISO-639-1 "
-        "format (e.g. 'pt'), or an RFC5646 language tag (e.g. 'pt-br').",
+                    "format (e.g. 'pt'), or an RFC5646 language tag (e.g. 'pt-br').",
     )
     tts_engine: Literal["openai", "google"] = Field(
         default="openai",
         description="The text-to-speech engine to use. The `google` engine is free "
-        "(for now, at least), but the `openai` engine (which will charge from your "
-        "API credits) sounds more natural.",
+                    "(for now, at least), but the `openai` engine (which will charge from your "
+                    "API credits) sounds more natural.",
     )
     stt_engine: Literal["openai", "google"] = Field(
         default="google",
         description="The preferred speech-to-text engine to use. The `google` engine is "
-        "free (for now, at least); the `openai` engine is less succeptible to outages.",
+                    "free (for now, at least); the `openai` engine is less succeptible to outages.",
     )
     openai_tts_voice: Literal["alloy", "echo", "fable", "onyx", "nova", "shimmer"] = (
         Field(default="onyx", description="Voice to use for OpenAI's TTS")
@@ -203,7 +216,7 @@ class VoiceAssistantConfigs(BaseConfigModel):
         default=1,
         gt=0,
         description="How much time user should be inactive "
-        "for the assistant to stop listening",
+                    "for the assistant to stop listening",
     )
     speech_likelihood_threshold: float = Field(
         default=0.5,
