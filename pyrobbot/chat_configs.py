@@ -56,6 +56,8 @@ class BaseConfigModel(BaseModel, extra="forbid"):
             for k, v in vars(cli_args).items()
             if k in cls.model_fields and v is not None
         }
+        if 'ai_instructions' in relevant_args and isinstance(relevant_args['ai_instructions'], str):
+            relevant_args['ai_instructions'] = tuple(relevant_args['ai_instructions'].split(','))
         return cls.model_validate(relevant_args)
 
     @classmethod
@@ -79,7 +81,10 @@ class BaseConfigModel(BaseModel, extra="forbid"):
     def from_file(cls, fpath: Path):
         """Return an instance of the class given configs stored in a json file."""
         with open(fpath, "r") as configs_file:
-            return cls.model_validate(json.load(configs_file))
+            config_data = json.load(configs_file)
+            if 'ai_instructions' in config_data and isinstance(config_data['ai_instructions'], str):
+                config_data['ai_instructions'] = tuple(config_data['ai_instructions'].split(','))
+            return cls.model_validate(config_data)
 
 
 class OpenAiApiCallOptions(BaseConfigModel):
